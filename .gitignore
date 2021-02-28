@@ -2,3 +2,4 @@ server/.vs/
 server/PixelWorld/obj/
 node_modules/
 pixel-world-client/package-lock.json
+server/PixelWorld/bin/

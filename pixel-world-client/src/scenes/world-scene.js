@@ -2,6 +2,7 @@ import tilesPng from './../assets/tiles.png';
 import palettePng from './../assets/palette-gray.png';
 import colorPickerPng from './../assets/color-picker.png';
 import Phaser from 'phaser';
+import * as signalR from '@microsoft/signalr';
 
 const colorsToPick = [0xff0000,0x0000ff,0x00ff00,0xff00ff,0xffff00,0x00ffff,0xffffff,0x000000];
 
@@ -51,6 +52,12 @@ export default class WorldScene extends Phaser.Scene
                 this.colorPicked = colorsToPick[i];
             });
         }
+
+        // signalR
+        let connection = new signalR.HubConnectionBuilder()
+            .withUrl("/game")
+            .build();
+
     }
 
     update(time, delta) 
