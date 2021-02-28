@@ -1,8 +1,13 @@
 import tilesPng from './../assets/tiles.png';
+import palettePng from './../assets/palette-gray.png';
+import colorPickerPng from './../assets/color-picker.png';
 import Phaser from 'phaser';
+
+const colorsToPick = [0xff0000,0x0000ff,0x00ff00,0xff00ff,0xffff00,0x00ffff,0xffffff,0x000000];
 
 export default class WorldScene extends Phaser.Scene
 {
+
     constructor ()
     {
         super();
@@ -11,13 +16,16 @@ export default class WorldScene extends Phaser.Scene
     preload ()
     {
         this.load.image('tiles', tilesPng);
+        this.load.image('palette', palettePng);
+        this.load.image('color-picker', colorPickerPng);
     }
       
     create ()
     {
         this.cameras.main.backgroundColor.setTo(128,128,128); 
+        this.colorPicked = colorsToPick[0];
 
-        this.map = this.make.tilemap({ tileWidth: 16, tileHeight: 16, width: 1920, height: 1080});
+        this.map = this.make.tilemap({ tileWidth: 16, tileHeight: 16, width: 200, height: 200});
         let tiles = this.map.addTilesetImage('tiles');
         let layer = this.map.createBlankLayer('layer1', tiles);
         layer.fill(0,0,0,1920,1080);
@@ -25,6 +33,24 @@ export default class WorldScene extends Phaser.Scene
         this.marker = this.add.graphics();
         this.marker.lineStyle(2, 0x000000, 1);
         this.marker.strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
+
+        this.palette = this.add.image(this.cameras.main.width/2, this.cameras.main.height-40, 'palette')
+            .setScrollFactor(0,0)
+            .setInteractive();
+
+        this.colorPicker = [];
+        for(let i = 0; i < colorsToPick.length; i++) {
+
+            this.colorPicker[i] = this.add.image(this.palette.x - this.palette.width/2 + ((i+1)*98), 
+                this.cameras.main.height-50, 'color-picker')
+            .setScrollFactor(0,0)
+            .setInteractive();
+            this.colorPicker[i].tint = colorsToPick[i];
+
+            this.colorPicker[i].on('pointerdown', pointer => {    
+                this.colorPicked = colorsToPick[i];
+            });
+        }
     }
 
     update(time, delta) 
@@ -43,7 +69,7 @@ export default class WorldScene extends Phaser.Scene
         {
             let selectedTile = this.map.getTileAt(pointerTileX, pointerTileY);
             if (selectedTile !== null) {
-                selectedTile.tint = 0xff00ff;
+                selectedTile.tint = this.colorPicked;
             }
         }
 
@@ -58,5 +84,9 @@ export default class WorldScene extends Phaser.Scene
         } else {
             this.game.origDragPoint = null;
         }
+    }
+
+    changeColor() {
+
     }
 }
