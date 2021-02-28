@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body style='margin: 0; overflow: hidden;'>
+  </body>
+</html>
+<script>
+(function(w, d){
+	d.body.addEventListener('contextmenu', function(event){
+		var blockContext = [
+			{ type: 'tag', value: 'canvas'},
+			{ type: 'id',  value: 'fooId'},
+			{ type: 'tag',  value: 'img'},
+		];
+		blockContext.map(
+			elm => {
+				var _elm
+				
+				if(elm.type == 'tag') _elm = d.querySelector(elm.value);
+				if(elm.type == 'id') _elm = d.getElementById(elm.value);
+
+				if(event.target == _elm) event.preventDefault();
+			}
+		);
+	});
+})(window, document);
+</script>
