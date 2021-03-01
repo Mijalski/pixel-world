@@ -26,7 +26,7 @@ export default class WorldScene extends Phaser.Scene
         this.cameras.main.backgroundColor.setTo(128,128,128); 
         this.colorPicked = colorsToPick[0];
 
-        this.map = this.make.tilemap({ tileWidth: 16, tileHeight: 16, width: 200, height: 200});
+        this.map = this.make.tilemap({ tileWidth: 16, tileHeight: 16, width: 256, height: 256});
         let tiles = this.map.addTilesetImage('tiles');
         let layer = this.map.createBlankLayer('layer1', tiles);
         layer.fill(0,0,0,1920,1080);
@@ -54,10 +54,22 @@ export default class WorldScene extends Phaser.Scene
         }
 
         // signalR
-        let connection = new signalR.HubConnectionBuilder()
-            .withUrl("/game")
+        this.signalrConnection = new signalR.HubConnectionBuilder()
+            .withUrl('https://localhost:44382/game')
             .build();
 
+        this.signalrConnection.on('MapSize', data => {
+            console.log(data);
+        });
+
+        this.signalrConnection.on('Map', data => {
+            console.log(data);
+        });
+
+        this.signalrConnection.start()
+            .then(() => this.signalrConnection.invoke('GetMapAsync'));
+
+        console.log('z')
     }
 
     update(time, delta) 

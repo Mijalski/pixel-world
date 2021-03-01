@@ -26,11 +26,12 @@ namespace PixelWorld.Hubs
 
             await Groups.AddToGroupAsync(Context.ConnectionId, "Players");
 
+            await Clients.Client(Context.ConnectionId).SendAsync("MapSize", _gameState.GetMapSize());
         }
 
         public async Task GetMapAsync()
         {
-            await Clients.Client(Context.ConnectionId).SendAsync("MapReceived", _gameState.GetMapColor());
+            await Clients.Client(Context.ConnectionId).SendAsync("Map", _gameState.GetMap());
         }
 
         public Task SetColorAtPositionAsync(int x, int y, int color)

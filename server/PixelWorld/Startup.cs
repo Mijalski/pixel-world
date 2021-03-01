@@ -1,12 +1,10 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PixelWorld.Games;
 using PixelWorld.Hubs;
 
@@ -16,9 +14,24 @@ namespace PixelWorld
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSignalR();
+            services.AddSignalR(e => {
+                    e.MaximumReceiveMessageSize = 102400000;
+                })
+                .AddNewtonsoftJsonProtocol();
 
             services.AddTransient<IGameState, GameState>();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("DefaultCorsPolicy",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:8080")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,6 +42,8 @@ namespace PixelWorld
             }
 
             app.UseRouting();
+
+            app.UseCors("DefaultCorsPolicy");
 
             app.UseEndpoints(endpoints =>
             {

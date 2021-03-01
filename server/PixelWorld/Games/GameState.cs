@@ -1,30 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PixelWorld.Games
 {
     public interface IGameState
     {
-        Dictionary<(int x, int y), int> GetMapColor();
+        int GetMapSize();
+        int[,] GetMap();
         void SetColorAtPosition(int x, int y, int color);
     }
 
     public class GameState : IGameState
     {
-        public int ColorsToPickLength = 8;
-        public Dictionary<(int x, int y), int> ColorsOnMap = new Dictionary<(int x, int y), int>();
+        public static int ColorsToPickLength = 8;
+        public static int MapSize = 256;
+        public int [,] Map = new int[MapSize, MapSize];
 
-        public Dictionary<(int x, int y), int> GetMapColor() => ColorsOnMap;
+        public int GetMapSize() => MapSize;
+
+        public int[,] GetMap() => Map;
 
         public void SetColorAtPosition(int x, int y, int color)
         {
-            if(ColorsOnMap.TryGetValue((x,y), out _))
+            if (x > MapSize)
             {
-                ColorsOnMap[(x, y)] = color;
+                throw new ArgumentOutOfRangeException(nameof(x), "X coordinate cannot be grater than map size");
             }
-            else
+            
+            if (y > MapSize)
             {
-                ColorsOnMap.Add((x,y), color);
+                throw new ArgumentOutOfRangeException(nameof(y), "Y coordinate cannot be grater than map size");
             }
+
+            Map[x, y] = color;
         }
     }
 }
