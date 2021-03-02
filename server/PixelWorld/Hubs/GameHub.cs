@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using PixelWorld.Games;
@@ -9,6 +10,7 @@ namespace PixelWorld.Hubs
     {
         Task GetMapAsync();
         Task SetColorAtPositionAsync(int x, int y, int color);
+        Task SetMultipleColorsAtPositionsAsync(List<MapPoint> mapPoints);
     }
 
     public class GameHub : Hub, IGameHub
@@ -37,6 +39,16 @@ namespace PixelWorld.Hubs
         public Task SetColorAtPositionAsync(int x, int y, int color)
         {
             _gameState.SetColorAtPosition(x, y, color);
+
+            return Task.CompletedTask;
+        }
+
+        public Task SetMultipleColorsAtPositionsAsync(List<MapPoint> mapPoints)
+        {
+            foreach (var mapPoint in mapPoints)
+            {
+                _gameState.SetColorAtPosition(mapPoint.X, mapPoint.Y, mapPoint.Color);
+            }
 
             return Task.CompletedTask;
         }

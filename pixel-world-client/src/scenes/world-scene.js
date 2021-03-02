@@ -4,7 +4,7 @@ import colorPickerPng from './../assets/color-picker.png';
 import Phaser from 'phaser';
 import * as signalR from '@microsoft/signalr';
 
-const colorsToPick = [0xff0000,0x0000ff,0x00ff00,0xff00ff,0xffff00,0x00ffff,0xffffff,0x000000];
+const colorsToPick = [0xffffff,0x000000,0xff0000,0x0000ff,0x00ff00,0xff00ff,0xffff00,0x00ffff];
 
 export default class WorldScene extends Phaser.Scene
 {
@@ -40,6 +40,7 @@ export default class WorldScene extends Phaser.Scene
             .setInteractive();
 
         this.colorPicker = [];
+        this.colorsAtPostionsChanged = [];
         for(let i = 0; i < colorsToPick.length; i++) {
 
             this.colorPicker[i] = this.add.image(this.palette.x - this.palette.width/2 + ((i+1)*98), 
@@ -49,9 +50,10 @@ export default class WorldScene extends Phaser.Scene
             this.colorPicker[i].tint = colorsToPick[i];
 
             this.colorPicker[i].on('pointerdown', pointer => {    
-                this.colorPicked = colorsToPick[i];
+                this.colorPicked = i;
             });
         }
+        this.colorPicked = 0;
 
         // signalR
         this.signalrConnection = new signalR.HubConnectionBuilder()
@@ -59,17 +61,32 @@ export default class WorldScene extends Phaser.Scene
             .build();
 
         this.signalrConnection.on('MapSize', data => {
-            console.log(data);
+            this.mapSize = data;
         });
 
         this.signalrConnection.on('Map', data => {
-            console.log(data);
+   
+            for (let x = 0; x < this.mapSize; x++) {
+                for (let y = 0; y < this.mapSize; y++) {
+                    this.map.getTileAt(x,y).tint = colorsToPick[data[x][y]];
+                }
+            }
         });
+
+        this.intervalId = window.setInterval(function() {
+            if (this.colorsAtPostionsChanged.length > 0) {
+                
+                this.signalrConnection.invoke('SetMultipleColorsAtPositionsAsync', 
+                    this.removeDuplicates(this.removeDuplicates(this.colorsAtPostionsChanged, 'x'), 'y'));
+                
+                this.colorsAtPostionsChanged = [];
+            }   
+            this.signalrConnection.invoke('GetMapAsync');
+
+        }.bind(this), 500);
 
         this.signalrConnection.start()
             .then(() => this.signalrConnection.invoke('GetMapAsync'));
-
-        console.log('z')
     }
 
     update(time, delta) 
@@ -88,7 +105,12 @@ export default class WorldScene extends Phaser.Scene
         {
             let selectedTile = this.map.getTileAt(pointerTileX, pointerTileY);
             if (selectedTile !== null) {
-                selectedTile.tint = this.colorPicked;
+                selectedTile.tint = colorsToPick[this.colorPicked];
+                this.colorsAtPostionsChanged.push({
+                    x: pointerTileX,
+                    y: pointerTileY,
+                    color: this.colorPicked
+                });
             }
         }
 
@@ -105,7 +127,9 @@ export default class WorldScene extends Phaser.Scene
         }
     }
 
-    changeColor() {
-
+    removeDuplicates(myArr, prop) {
+        return myArr.filter((obj, pos, arr) => {
+            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
+        });
     }
 }

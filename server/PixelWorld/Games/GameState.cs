@@ -14,7 +14,7 @@ namespace PixelWorld.Games
     {
         public static int ColorsToPickLength = 8;
         public static int MapSize = 256;
-        public int [,] Map = new int[MapSize, MapSize];
+        public static int[,] Map = new int[MapSize, MapSize];
 
         public int GetMapSize() => MapSize;
 
