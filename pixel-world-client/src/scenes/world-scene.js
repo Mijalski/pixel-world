@@ -77,7 +77,7 @@ export default class WorldScene extends Phaser.Scene
             if (this.colorsAtPostionsChanged.length > 0) {
                 
                 this.signalrConnection.invoke('SetMultipleColorsAtPositionsAsync', 
-                    this.removeDuplicates(this.removeDuplicates(this.colorsAtPostionsChanged, 'x'), 'y'));
+                    this.removeDuplicates(this.removeDuplicates(this.colorsAtPostionsChanged)));
                 
                 this.colorsAtPostionsChanged = [];
             }   
@@ -127,9 +127,8 @@ export default class WorldScene extends Phaser.Scene
         }
     }
 
-    removeDuplicates(myArr, prop) {
-        return myArr.filter((obj, pos, arr) => {
-            return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
-        });
+    removeDuplicates(map) {
+        return map.filter((point, index, self) => 
+            self.findIndex(t => t.x === point.x && t.y === point.y) === index);
     }
 }
