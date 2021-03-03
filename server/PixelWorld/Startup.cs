@@ -26,7 +26,7 @@ namespace PixelWorld
                 options.AddPolicy("DefaultCorsPolicy",
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:8080")
+                        builder.WithOrigins("http://localhost:8080", "https://pixels.hashash.app", "https://www.pixels.hashash.app")
                             .AllowAnyHeader()
                             .AllowAnyMethod()
                             .AllowCredentials();

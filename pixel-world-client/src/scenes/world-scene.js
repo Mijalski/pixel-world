@@ -57,7 +57,7 @@ export default class WorldScene extends Phaser.Scene
 
         // signalR
         this.signalrConnection = new signalR.HubConnectionBuilder()
-            .withUrl('https://localhost:44382/game')
+            .withUrl('https://pixel-world.azurewebsites.net/game')
             .build();
 
         this.signalrConnection.on('MapSize', data => {
